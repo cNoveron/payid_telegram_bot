@@ -42,8 +42,8 @@ bot.command('pay', (ctx) => {
 
         const sendersSecret = "sh9o5bCen9xRZ8cnqn8iYKffm2RDV" // Sathya's account secret
         const { id, signedTransaction } = api.sign(txJSON, sendersSecret)
-        txID = id
-        console.log("txID:", txID)
+        ctx.reply("txID:" + id)
+        console.log("txID:", id)
         console.log("signedTransaction:", signedTransaction)
 
         return api.submit(signedTransaction)
@@ -54,23 +54,6 @@ bot.command('pay', (ctx) => {
         console.log("resultCode:", resultCode)
         console.log("resultMessage:", resultMessage)
 
-        return api.getLedgerVersion()
-
-    }).then((latestLedgerVersion) => {
-
-        const earliestLedgerVersion = latestLedgerVersion + 1
-        console.log("Earliest ledger version:", earliestLedgerVersion)
-
-        // earliestLedgerVersion was noted when the transaction was submitted.
-        // txID was noted when the transaction was signed.
-        return api.getTransaction(txID, { minLedgerVersion: earliestLedgerVersion })
-    
-    }).then((tx) => {
-
-        ctx.reply("Transaction result:", tx.outcome.result)
-        ctx.reply("Balance changes:", JSON.stringify(tx.outcome.balanceChanges))
-        ctx.reply(`${payID}`)
-        
     })
         .catch(console.log)
 
@@ -84,5 +67,27 @@ bot.command('pay', (ctx) => {
 
 })
 
+bot.command('check', (ctx) => {
+
+    const inputs = ctx.message.text.split(' ')
+    const txID = inputs[1]
+    api.getLedgerVersion().then((latestLedgerVersion) => {
+
+        const earliestLedgerVersion = latestLedgerVersion + 1
+        console.log("Earliest ledger version:", earliestLedgerVersion)
+
+        // earliestLedgerVersion was noted when the transaction was submitted.
+        // txID was noted when the transaction was signed.
+        return api.getTransaction(txID, { minLedgerVersion: earliestLedgerVersion })
+
+    }).then((tx) => {
+
+        ctx.reply("Transaction result:", tx.outcome.result)
+        ctx.reply("Balance changes:", JSON.stringify(tx.outcome.balanceChanges))
+        ctx.reply(`${payID}`)
+
+    })
+        .catch(console.log)
+})
 
 bot.launch()
