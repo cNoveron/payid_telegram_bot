@@ -5,7 +5,8 @@
     "private": true,
     "//": "Change the license to something appropriate. You may want to use 'UNLICENSED' if you are just starting out.",
     "dependencies": {
-        "ripple-lib": "*"
+        "ripple-lib": "*",
+        "telegraf": "^3.38.0"
     },
     "devDependencies": {
         "eslint": "*"
