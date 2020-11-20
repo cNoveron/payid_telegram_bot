@@ -6,6 +6,8 @@ const FormData = require('form-data')
 const fs = require('fs')
 const video = fs.createReadStream('./video/consent.mp4')
 
+const { v4: uuidv4 } = require('uuid')
+
 const axios = require('axios')
 
 app.get('/sendVideo', (req, res) => {
@@ -85,7 +87,7 @@ app.get('/linkToFHIR', async (req, res) => {
 	const url = `http://payid.trade:4000/encounter`
 	const permission = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6InRlZWIifQ.0_SRPmiEqwp6ZIrAnfGCgbV-aSrRordbIyEnZ-dZG70'
 	const headers = { "Content-Type": "application/json", "Authorization": `Bearer ${permission}` }
-	const id = 'rAnfGCgbVTY3xMjM0Nqwp6ZIODkwI'
+	const id = `${uuidv4()}`
 	const data = FHIR_resource ? JSON.stringify({ id, txid: `${Date.now()}`, status: "created", resource: FHIR_resource }) : null
 	const options = { method: "POST", url, headers, data }
 	FHIRServer_response = await axios(options)
