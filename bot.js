@@ -1,12 +1,76 @@
-const ripple = require('ripple-lib')
-const api = new ripple.RippleAPI({ server: 'wss://s.altnet.rippletest.net:51233' })
-api.connect()
+require('dotenv').config({
+	path: './.env.local'
+})
+
+const bot_token = process.env.BOT_TOKEN
 
 const { Telegraf } = require('telegraf')
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const tgf_API = new Telegraf(bot_token)
 
-// const BigNumber = require('big-number')
-bot.command('pay', (ctx) => {
+const Telegram = require('telegraf/telegram')
+const tgm_API = new Telegram(bot_token)
+
+const { Keyboard } = require('telegram-keyboard')
+
+const ripple = require('ripple-lib')
+const api = new ripple.RippleAPI({ server: 'wss://s.altnet.rippletest.net:51233' })
+
+api.connect()
+
+let count = 0
+const questions_and_answers = [
+	['What is your housing situation today?', [
+		'I have housing',
+		'I do not have housing (staying with others, in a hotel, on the street, in a shelter)']
+	],
+	['What is the highest level of school that you have finished ?', [
+		'Less than high school degree',
+		'High school diploma or GED',
+		'More than high school']
+	],
+	['What is your current work situation?', [
+		'I have housing',
+		'I do not have housing (staying with others, in a hotel, on the street, in a shelter)']
+	],
+	['What is your housing situation today?', [
+		'I have housing',
+		'I do not have housing (staying with others, in a hotel, on the street, in a shelter)']
+	],
+]
+
+tgf_API.command('start', async (context) => {
+	try {
+
+	}
+	catch (e) { console.log(e); }
+})
+
+tgf_API.command('', async (context) => {
+	try {
+
+	}
+	catch (e) { console.log(e); }
+})
+
+tgf_API.command('consent', async (context) => {
+	try {
+
+		console.log(context.chat)
+		// const updates = await tgm_API.getUpdates()
+		const chat_id = context.chat.id
+		tgm_API.sendVideo(chat_id, 'https://www.youtube.com/watch?v=TmodQMGITZw&random=58')
+		const keyboard = Keyboard.make([
+			['Yes', 'No'], // First row
+			// ['Button 3', 'Button 4'], // Second row
+		])
+
+		await context.reply('Do you consent Dr. Dolittle to look at your EHR?', keyboard.reply())
+		// await reply('Simple inline keyboard', keyboard.inline())
+	}
+	catch (e) {console.log(e);}
+})
+
+tgf_API.command('pay', (ctx) => {
 
     const inputs = ctx.message.text.split(' ')
     const payID = inputs[1]
@@ -32,7 +96,7 @@ bot.command('pay', (ctx) => {
             } // Shane's address
         }
     }).then((preparedTx) => {
-        
+
         const { txJSON, instructions } = preparedTx
         const { maxLedgerVersion, fee } = instructions
 
@@ -47,15 +111,14 @@ bot.command('pay', (ctx) => {
         console.log("signedTransaction:", signedTransaction)
 
         return api.submit(signedTransaction)
-        
+
     }).then((result) => {
 
         const { resultCode, resultMessage } = result
         console.log("resultCode:", resultCode)
         console.log("resultMessage:", resultMessage)
 
-    })
-        .catch(console.log)
+    }).catch(console.log)
 
 
     // api.on('ledger', ledger => {
@@ -67,7 +130,7 @@ bot.command('pay', (ctx) => {
 
 })
 
-bot.command('check', (ctx) => {
+tgf_API.command('check', (ctx) => {
 
     const inputs = ctx.message.text.split(' ')
     const txID = inputs[1]
@@ -90,4 +153,4 @@ bot.command('check', (ctx) => {
         .catch(console.log)
 })
 
-bot.launch()
+tgf_API.launch()
